@@ -1,3 +1,10 @@
+"""
+Training Script for PhysNet based models:
+* PhysNet
+* PhysNet_SpaTemp
+* PhysNetDil
+* PhysNetGlobal
+"""
 import argparse
 import os
 import glob
@@ -12,6 +19,7 @@ import torchvision.transforms as transforms
 from PhysNet import NegPearson
 from PhysNet import PhysNet
 import torchvision.datasets as datasets
+import numpy as np
 import matplotlib.pyplot as plt
 import pulse_dataset
 
@@ -64,51 +72,30 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # measure data loading time
         data_time.update(time.time() - end)
-        # print(target.size(), net_input.size())
-
         net_input = net_input.cuda(non_blocking=True)
-
         target = target.cuda(non_blocking=True)
 
         # compute output
-        output, x_visual, x,y = model(net_input)  #, x_visual3232, x_visual1616
+        output, x_visual, x,y = model(net_input)
         rPPG = (output - torch.mean(output)) / torch.std(output)  # normalize
         BVP_label = (target - torch.mean(target)) / torch.std(target)  # normalize
         print(rPPG.size(), BVP_label.size())
 
         loss = criterion(rPPG, BVP_label)
 
-        # target=target.squeeze()
-        #
-        # loss = criterion(output.squeeze(), target)
-        # print(rPPG, BVP_label)
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
-        output = output.float()
         loss = loss.float()
-        # print(loss.item(), net_input1.size(0), i)
+
         # measure accuracy and record loss
-        # prec1 = accuracy(output.data, target)[0]
         losses.update(loss.item(), net_input.size(0))
-        # top1.update(prec1.item(), net_input.size(0))
 
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-
-        # if i % args.print_freq == 0:
-        #     print('Epoch: [{0}][{1}/{2}]\t'
-        #           'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-        #           'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-        #           'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-        #           .format(
-        #               epoch, i, len(train_loader), batch_time=batch_time,
-        #               data_time=data_time, loss=losses))
-        # with open('train_log.csv', 'a') as log:
-        #     log.write("{}, {}\n".format(losses.val, losses.avg))
 
         if i % args.print_freq == 0:
             print('Epoch: [{0}][{1}/{2}]\t'
@@ -139,40 +126,25 @@ def validate(val_loader, model, criterion):
     for i, (net_input, target) in enumerate(val_loader):
 
         net_input = net_input.cuda(non_blocking=True)
-
-        # target = target.squeeze()
         target = target.cuda(non_blocking=True)
 
         # compute output
         with torch.no_grad():
-            output, x_visual, x, y = model(net_input)  #, x_visual3232, x_visual1616
+            output, x_visual, x, y = model(net_input)
             rPPG = (output - torch.mean(output)) / torch.std(output)  # normalize
             BVP_label = (target - torch.mean(target)) / torch.std(target)  # normalize
-            # print(rPPG, BVP_label)
 
             loss = criterion(rPPG, BVP_label)
 
-        output = output.float()
-        # print(output, target)
         loss = loss.float()
 
         # measure accuracy and record loss
-        # prec1 = accuracy(output.data, target)[0]
         losses.update(loss.item(), net_input.size(0))
-        # top1.update(prec1.item(), net_input1.size(0))
 
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
-    #     if i % args.print_freq == 0:
-    #         print('Test: [{0}/{1}]\t'
-    #               'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-    #               'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-    #               .format(
-    #                   i, len(val_loader), batch_time=batch_time, loss=losses))
-    #
-    # with open('test_log.csv', 'a') as log:
-    #     log.write("{}\n".format(losses.avg))
+
         if i % args.print_freq == 0:
             print('Test: [{0}/{1}]\t'
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
@@ -222,22 +194,6 @@ def adjust_learning_rate(optimizer, epoch, every):
         param_group['lr'] = lr
 
 
-def accuracy(output, target, topk=(1,)):
-    """Computes the precision@k for the specified values of k"""
-    maxk = max(topk)
-    batch_size = target.size(0)
-
-    _, pred = output.topk(maxk, 1, True, True)
-    pred = pred.t()
-    correct = pred.eq(target.view(1, -1).expand_as(pred))
-
-    res = []
-    for k in topk:
-        correct_k = correct[:k].view(-1).float().sum(0)
-        res.append(correct_k.mul_(100.0 / batch_size))
-    return res
-
-
 if __name__ == '__main__':
     train_sequence_list = "train_seq.txt"  # "sequence_test.txt"#   "sequence_test.txt"
     root_dir = 'E:/Datasets_PULSE/set_all/'
@@ -246,9 +202,7 @@ if __name__ == '__main__':
     with open(train_sequence_list, 'r') as seq_list_file:
         for line in seq_list_file:
             seq_list.append(line.rstrip('\n'))
-    print(seq_list)
 
-    # p16_v3_source2, p12_v1_source2, p23_v1_source2, p11_v4_source3, p49_v6_source1
     i = 0
     for s in seq_list:
         i+=1
@@ -270,7 +224,7 @@ if __name__ == '__main__':
     end_indexes = [0, *end_indexes]
     print(end_indexes)
 
-    test_sequence_list = "test_seq.txt"  # #"sequence_test.txt" #
+    test_sequence_list = "test_seq.txt"
     root_dir = 'E:/Datasets_PULSE/set_all/'
     seq_list = []
     end_indexes_test = []
@@ -309,26 +263,6 @@ if __name__ == '__main__':
     model = PhysNet(seq_len)
 
     model = torch.nn.DataParallel(model)
-
-    # for param in model.module.parameters():
-    #     # print(param)
-    #     param.requires_grad = False
-    # for param in model.module.ConvBlock8.parameters():
-    #     # print(param)
-    #     param.requires_grad = True
-    # for param in model.module.ConvBlock9.parameters():
-    #     # print(param)
-    #     param.requires_grad = True
-    # for param in model.module.upsample.parameters():
-    #     # print(param)
-    #     param.requires_grad = True
-    # for param in model.module.upsample2.parameters():
-    #     # print(param)
-    #     param.requires_grad = True
-    # for param in model.module.ConvBlock10.parameters():
-    #     # print(param)
-    #     param.requires_grad = True
-
     model.cuda()
 
     # optionally resume from a checkpoint
@@ -367,7 +301,7 @@ if __name__ == '__main__':
                                             length=len(sampler_test), transform=transforms.Compose([
                                                                                                 transforms.ToTensor(),
                                                                                                 normalize]))
-    import numpy as np
+    # Visualize frames
     # fig = plt.figure()
     # for i in range(len(pulse_test)):
     #     sample = pulse[i]
@@ -399,7 +333,6 @@ if __name__ == '__main__':
 
     # define loss function (criterion) and optimizer
     # criterion = nn.MSELoss()
-    # criterion = nn.BCEWithLogitsLoss()
     criterion = NegPearson()
     criterion = criterion.cuda()
 

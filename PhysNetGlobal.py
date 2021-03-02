@@ -15,7 +15,6 @@ Copyright (c) 2019
 
 import math
 import torch.nn as nn
-import torch.nn.functional as F
 import torch
 
 
@@ -91,7 +90,7 @@ class PhysNet(nn.Module):
             nn.ELU(),
         )
 
-        # self.attention = SelfAttention(64)
+        self.gcb = GCBlock(64)
         self.ConvBlock10 = nn.Conv3d(64, 1, [1, 1, 1], stride=1, padding=0)
 
         self.MaxpoolSpa = nn.MaxPool3d((1, 2, 2), stride=(1, 2, 2))
@@ -122,19 +121,20 @@ class PhysNet(nn.Module):
         x_visual1616 = self.ConvBlock7(x)  # x [64, T/4, 16,16]
 
         x = self.MaxpoolSpa(x_visual1616)  # x [64, T/4, 8,8]
-        x = self.ConvBlock8(F.dropout(x, p=0.2))  # x [64, T/4, 8, 8]
-        x = self.ConvBlock9(F.dropout(x, p=0.2))  # x [64, T/4, 8, 8]
+        x = self.gcb(x)
+        x = self.ConvBlock8(x)  # x [64, T/4, 8, 8]
+        x = self.ConvBlock9(x)  # x [64, T/4, 8, 8]
 
         x = self.upsample(x)  # x [64, T/2, 8, 8]
         x = self.upsample2(x)  # x [64, T, 8, 8]
         # h = x.register_hook(self.activations_hook)
 
-        x = self.poolspa(x)  # x [64, T, 1, 1]
-        x = self.ConvBlock10(F.dropout(x, p=0.5))  # x [1, T, 1,1]
-        print(x.size(), length)
-        rPPG = x.view(-1, length)
-        print(rPPG.size())
-        return rPPG, x_visual, x, x_visual1616
+        # x = nn.ELU(inplace=True)(x)
+
+        x = self.poolspa(x)  # x [64, T, 1, 1]    -->  groundtruth left and right - 7
+        x = self.ConvBlock10(x)  # x [1, T, 1,1]
+        r_ppg = x.view(-1, length)
+        return r_ppg, x_visual, x, x_visual1616
 
     def activations_hook(self, grad):
         self.gradients = grad
@@ -166,44 +166,41 @@ class PhysNet(nn.Module):
         return x
 
 
-class SelfAttention(nn.Module):
-    def __init__(self, c, reduction_ratio=16):
-        super(SelfAttention, self).__init__()
-        self.decoded = nn.Conv3d(c,  math.ceil(c / reduction_ratio), kernel_size=1)
-        self.encoded = nn.Conv3d(math.ceil(c / reduction_ratio), c, kernel_size=1)
-        self.relu = nn.ReLU()
+class GCBlock(nn.Module):
+    """
+    Global Context Block adapted to 3D convolution
+    """
+    def __init__(self,  C, reduction_ratio=16):
+        """
+        Global Context layer
+        :param C: number of input channels
+        :param reduction_ratio: reduction ratio
+        """
+        super(GCBlock, self).__init__()
+        self.attention = nn.Conv3d(C, out_channels=1, kernel_size=1)
+        self.c12 = nn.Conv3d(C, math.ceil(C / reduction_ratio), kernel_size=1)
+        self.c15 = nn.Conv3d(math.ceil(C / reduction_ratio), C, kernel_size=1)
+        self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x):
-        N = x.size()[0]
-        C = x.size()[1]
+    def forward(self, block_input):
+        print(block_input.size())
+        N = block_input.size()[0]
+        C = block_input.size()[1]
+        D = block_input.size()[2]
 
-        decoded = self.decoded(x)
-        encoded = self.encoded(self.relu(torch.layer_norm(decoded, decoded.size()[1:])))
-        encoded = nn.functional.softmax(encoded)
-        cnn = x * encoded
+        attention = self.attention(block_input)
+        print(attention.size())
+        block_input = nn.functional.softmax(block_input)
+
+        block_input_flattened = torch.reshape(block_input, [N, C, D, -1])
+        attention = torch.squeeze(attention, dim=3)
+        attention_flattened = torch.reshape(attention, [N, D, -1])
+
+        c11 = torch.einsum('bcdf,bdf->bcd', block_input_flattened,
+                           attention_flattened)
+        c11 = torch.reshape(c11, (N, C, D, 1, 1))
+        c12 = self.c12(c11)
+
+        c15 = self.c15(self.relu(torch.layer_norm(c12, c12.size()[1:])))
+        cnn = torch.add(block_input, c15)
         return cnn
-
-
-class NegPearson(nn.Module):  # Pearson range [-1, 1] so if < 0, abs|loss| ; if >0, 1- loss
-    def __init__(self):
-        super(NegPearson, self).__init__()
-        return
-
-    def forward(self, preds, labels):  # tensor [Batch, Temporal]
-        loss = 0
-        for i in range(preds.shape[0]):
-            sum_x = torch.sum(preds[i])  # x
-            sum_y = torch.sum(labels[i])  # y
-            sum_xy = torch.sum(preds[i] * labels[i])  # xy
-            sum_x2 = torch.sum(torch.pow(preds[i], 2))  # x^2
-            sum_y2 = torch.sum(torch.pow(labels[i], 2))  # y^2
-            N = preds.shape[1]
-            pearson = (N * sum_xy - sum_x * sum_y) / (
-                torch.sqrt((N * sum_x2 - torch.pow(sum_x, 2)) * (N * sum_y2 - torch.pow(sum_y, 2))))
-
-            loss += 1 - pearson
-
-        loss = loss / preds.shape[0]
-        return loss
-
-

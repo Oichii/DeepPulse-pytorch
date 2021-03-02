@@ -18,13 +18,10 @@ class PulseSampler(Sampler):
         for i in range(len(end_idx) - 1):
             start = end_idx[i]
             end = end_idx[i]+end_idx[i + 1] - seq_len
-            # print(start, end, end_idx)
-            indices.append(torch.arange(start, end, seq_len))  # indexes uniformly distributed between start and end  -- Seq_len
-            # print(indices)
-
-            # non overlaping window
+            indices.append(torch.arange(start, end, seq_len))  # indexes uniformly distributed between start and end
+            # non overlapping window
         indices = torch.cat(indices)
-        # print(indices)
+
         self.indices = indices
         self.random = random
 
@@ -38,7 +35,7 @@ class PulseSampler(Sampler):
             return iter(indices.tolist())
         else:
             indices = self.indices  # available indexes without shuffling
-            print('hello', indices)
+
             return iter(indices.tolist())
 
 
