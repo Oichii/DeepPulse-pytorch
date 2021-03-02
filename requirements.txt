@@ -1,0 +1,10 @@
+scipy
+PIL
+torch==1.4.0
+opencv-python==4.3.0.36
+torchvision
+numpy==1.18.5
+matplotlib==3.2.0
+pandas==1.0.5
+heartpy==1.2.6
+

@@ -1,17 +1,12 @@
-'''
-Code of 'Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks'
+"""
+PhysNet model with global context block added.
+PhysNet implementation comes from:
+'Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks'
 By Zitong Yu, 2019/05/05
-If you use the code, please cite:
-@inproceedings{yu2019remote,
-    title={Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks},
-    author={Yu, Zitong and Li, Xiaobai and Zhao, Guoying},
-    booktitle= {British Machine Vision Conference (BMVC)},
-    year = {2019}
-}
 Only for research purpose, and commercial use is not allowed.
 MIT License
 Copyright (c) 2019
-'''
+"""
 
 import math
 import torch.nn as nn

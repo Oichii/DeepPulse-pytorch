@@ -1,3 +1,6 @@
+"""
+HR-CNN validation script, power spectrum, correlation and errors calculation
+"""
 import os
 import torch
 import torchvision.transforms as transforms
@@ -114,7 +117,6 @@ criterionMAE = nn.L1Loss()
 mse = criterionMSE(reference_, outputs)
 rmse = torch.sqrt(mse)
 mae = criterionMAE(reference_, outputs)
-print(outputs.shape)
 se = torch.std(outputs - reference_) / np.sqrt(outputs.shape[0])
 print("MAE: ", mae, "MSE: ", mse, "RMSE: ", rmse, "SE:", se)
 

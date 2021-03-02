@@ -1,3 +1,11 @@
+"""
+HR-CNN model implementation from
+`Visual Heart Rate Estimation with Convolutional Neural Network`
+by Spetlik, R., Franc, V., Cech, J. and Matas, J.
+2018
+SelfAttention and GlobalContext blocks from
+
+"""
 import torch.nn as nn
 import torch.nn.functional as F
 import torch

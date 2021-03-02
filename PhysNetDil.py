@@ -1,3 +1,12 @@
+"""
+PhysNet model with dilated convolution.
+PhysNet implementation comes from:
+'Remote Photoplethysmograph Signal Measurement from Facial Videos Using Spatio-Temporal Networks'
+By Zitong Yu, 2019/05/05
+Only for research purpose, and commercial use is not allowed.
+MIT License
+Copyright (c) 2019
+"""
 import torch.nn as nn
 
 
