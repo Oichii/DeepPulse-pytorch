@@ -81,4 +81,3 @@ class PulseDataset(Dataset):
         image = (image - torch.mean(image))/torch.std(image)*255
         sample = (image, label)
         return sample
-

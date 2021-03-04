@@ -40,7 +40,7 @@ else:
     print("=> no checkpoint found at '{}'".format(resume))
 
 sequence_list = "sequence_test.txt"
-root_dir = 'E:/Datasets_PULSE/set_all/'
+root_dir = 'set_all/'
 seq_list = []
 end_indexes_test = []
 with open(sequence_list, 'r') as seq_list_file:

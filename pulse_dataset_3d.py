@@ -14,13 +14,13 @@ class PulseDataset(Dataset):
     Frames are put in 4D tensor with size [c x d x w x h]
     """
 
-    def __init__(self, sequence_list, root_dir, length, img_heiht=120, img_width=120, seq_len=1, transform=None):
+    def __init__(self, sequence_list, root_dir, length, img_height=120, img_width=120, seq_len=1, transform=None):
         """
         Initialize dataset
         :param sequence_list: list of sequences in dataset
         :param root_dir: directory containing sequences folders
         :param length: number of possible sequences
-        :param img_heiht: height of the image
+        :param img_height: height of the image
         :param img_width: width of the image
         :param seq_len: length of generated sequence
         :param transform: transforms to apply to data
@@ -56,11 +56,11 @@ class PulseDataset(Dataset):
 
         self.length = length
         self.seq_len = seq_len
-        self.img_height = img_heiht
+        self.img_height = img_height
         self.img_width = img_width
         self.root_dir = root_dir
         self.transform = transform
-        # print('Found', self.__len__(), "sequences")
+        print('Found', self.__len__(), "sequences")
 
     def __len__(self):
         return self.length
