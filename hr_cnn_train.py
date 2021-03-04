@@ -2,7 +2,7 @@
 2D convolution (HR-CNN) based model training script
 """
 from hr_cnn import HrCNN
-import pure_dataset
+import pulse_dataset_2d
 import argparse
 import os
 import time
@@ -208,11 +208,11 @@ if __name__ == '__main__':
 
     seqlen = 1
     seq_dir = 'E:/Datasets_PULSE/set_all/'
-    pulse = pure_dataset.PulseDataset("transfer_train.txt", seq_dir,
-                                      transform=transforms.ToTensor())
+    pulse = pulse_dataset_2d.PulseDataset("transfer_train.txt", seq_dir,
+                                          transform=transforms.ToTensor())
 
-    pulse_test = pure_dataset.PulseDataset("seq_test.txt", seq_dir,
-                                           transform=transforms.ToTensor())
+    pulse_test = pulse_dataset_2d.PulseDataset("seq_test.txt", seq_dir,
+                                               transform=transforms.ToTensor())
 
     # fig = plt.figure()
     # for i in range(len(pulse)):

@@ -21,7 +21,7 @@ from PhysNet import PhysNet
 import torchvision.datasets as datasets
 import numpy as np
 import matplotlib.pyplot as plt
-import pulse_dataset
+import pulse_dataset_3d
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Training')
 parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
@@ -295,10 +295,10 @@ if __name__ == '__main__':
     sampler = PulseSampler(end_indexes, seq_len, False)
     sampler_test = PulseSampler(end_indexes_test, seq_len, False)
 
-    pulse = pulse_dataset.PulseDataset(train_sequence_list, root_dir, seq_len=seq_len,
-                                       length=len(sampler), transform=trans)
-    pulse_test = pulse_dataset.PulseDataset(test_sequence_list, root_dir, seq_len=seq_len,
-                                            length=len(sampler_test), transform=transforms.Compose([
+    pulse = pulse_dataset_3d.PulseDataset(train_sequence_list, root_dir, seq_len=seq_len,
+                                          length=len(sampler), transform=trans)
+    pulse_test = pulse_dataset_3d.PulseDataset(test_sequence_list, root_dir, seq_len=seq_len,
+                                               length=len(sampler_test), transform=transforms.Compose([
                                                                                                 transforms.ToTensor(),
                                                                                                 normalize]))
     # Visualize frames

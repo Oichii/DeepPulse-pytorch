@@ -10,14 +10,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 from torch import nn
 
-import pure_dataset
+import pulse_dataset_2d
 
 from hr_cnn import HrCNN
 from PhysNet import NegPearson
 from PhysNet_SpaTemp import PhysNet
 from torchvision import utils
 from pulse_sampler import PulseSampler
-from pulse_dataset import PulseDataset
+from pulse_dataset_3d import PulseDataset
 
 resume = 'save_temp/model_checkpoint.tar'
 print("initialize model {} ...".format(13))
@@ -35,8 +35,8 @@ if os.path.isfile(resume):
 else:
     print("=> no checkpoint found at '{}'".format(resume))
 
-pulse_test = pure_dataset.PulseDataset("sequence_test.txt", 'E:/Datasets_PULSE/set_all/',
-                                       transform=transforms.ToTensor())
+pulse_test = pulse_dataset_2d.PulseDataset("sequence_test.txt", 'E:/Datasets_PULSE/set_all/',
+                                           transform=transforms.ToTensor())
 
 val_loader = torch.utils.data.DataLoader(
     pulse_test,

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.signal import find_peaks
 from pulse_sampler import PulseSampler
-from pulse_dataset import PulseDataset
+from pulse_dataset_3d import PulseDataset
 from PhysNet import NegPearson
 from PhysNet import PhysNet
 from scipy.stats import pearsonr

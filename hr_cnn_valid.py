@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import heartpy as hp
 from hr_cnn import HrCNN
-import pure_dataset
+import pulse_dataset_2d
 from utils import butter_bandpass_filter
 import time
 
@@ -34,8 +34,8 @@ if os.path.isfile(resume):
 else:
     print("=> no checkpoint found at '{}'".format(resume))
 
-pulse_test = pure_dataset.PulseDataset("sequence_test.txt", 'E:/Datasets_PULSE/set_all/',
-                                       transform=transforms.ToTensor())
+pulse_test = pulse_dataset_2d.PulseDataset("sequence_test.txt", 'E:/Datasets_PULSE/set_all/',
+                                           transform=transforms.ToTensor())
 
 val_loader = torch.utils.data.DataLoader(
     pulse_test,

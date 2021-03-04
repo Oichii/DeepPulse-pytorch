@@ -10,7 +10,8 @@ from scipy.signal import resample
 
 class PulseDataset(Dataset):
     """
-    PURE, VIPL-hr, optospare and pff pulse dataset. Containing video frames and corresponding to them pulse measurements
+    PURE, VIPL-hr, optospare and pff pulse dataset. Containing video frames and corresponding to them pulse signal.
+    Frames are put in 4D tensor with size [c x d x w x h]
     """
 
     def __init__(self, sequence_list, root_dir, length, img_heiht=120, img_width=120, seq_len=1, transform=None):

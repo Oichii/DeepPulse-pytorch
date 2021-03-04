@@ -12,7 +12,10 @@ from scipy.signal import resample
 
 
 class PulseDataset(Dataset):
-    """PURE pulse dataset. Containing video frames and corresponding to them pulse measurements"""
+    """
+    PURE pulse dataset. Containing video frames and corresponding to them pulse signal.
+    Frames in shape [c x w x h] and label with corresponding PPG value.
+    """
 
     def __init__(self, sequence_list, root_dir, img_w=128, img_h=192, transform=None):
         """
