@@ -14,6 +14,9 @@ To train or test network use appropriate script from listed below.
 PyTorch Dataloader and Dataset are prepared to work with sets containing `waveform` information from pulseoximeter. 
 Scripts require lists of sequences to train and test the network. Sequences should be placed in `<dataset>\<sequence_num>`
 directory, where `<dataset>` should be set as `root_dir = <dataset>` in training and testing scripts. 
+
+Each image of the sequence should be cropped to only subjects face using `utils\face_crop.py`
+
 #### HR-CNN 
 training script `hr_cnn_train.py` \
 validation script `hr_cnn_valid.py`\
