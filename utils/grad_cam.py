@@ -12,9 +12,9 @@ from torch import nn
 
 import pulse_dataset_2d
 
-from hr_cnn import HrCNN
-from PhysNet import NegPearson
-from PhysNet_SpaTemp import PhysNet
+from models.hr_cnn import HrCNN
+from models.PhysNet import NegPearson
+from models.PhysNet_SpaTemp import PhysNet
 from torchvision import utils
 from pulse_sampler import PulseSampler
 from pulse_dataset_3d import PulseDataset

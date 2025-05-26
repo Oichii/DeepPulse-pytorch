@@ -16,7 +16,7 @@ from PhysNet import NegPearson
 from PhysNet import PhysNet
 from scipy.stats import pearsonr
 import heartpy as hp
-from utils import butter_bandpass_filter
+from utils.utils import butter_bandpass_filter
 import torch.nn as nn
 import time
 

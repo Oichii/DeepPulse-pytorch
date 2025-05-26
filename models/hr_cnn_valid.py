@@ -10,7 +10,7 @@ import numpy as np
 import heartpy as hp
 from hr_cnn import HrCNN
 import pulse_dataset_2d
-from utils import butter_bandpass_filter
+from utils.utils import butter_bandpass_filter
 import time
 
 resume = 'save_temp/model_path.tar'
